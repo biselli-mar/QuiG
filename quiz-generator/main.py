@@ -1,75 +1,75 @@
-from llama_cpp import Llama, LlamaGrammar
-
-sys_prompt = """
-Du bist ein professioneller Quiz-Generator. Deine Aufgabe ist es, ein Quiz basierend auf dem gegebenen Kontext zu erstellen.
-Der Kontext sind Folien aus einer Universitätsvorlesung. Einige können mathematische Gleichungen enthalten, die nicht korrekt extrahiert wurden. Verwende dein eigenes Wissen, um eventuelle Fehler im extrahierten Text anhand der Erklärung und des Kontexts der Gleichungen zu korrigieren. Du kannst auch eigene Beispiele zum Thema verwenden, um die Qualität des Quiz zu verbessern.
-
-Deine Antwort sollte strikt dem folgenden Format folgen:
-Frage: [Frage hier einfügen]
-Optionen: [Antwortoptionen hier einfügen]
-Richtige Antwort: [richtige Antwort hier einfügen]
-Erklärung: [kurze Erklärung hier einfügen (optional)]
-
-Der Kontext für diese Aufgabe ist wie folgt:
-
-Einführung in die Statistik in der angewandten Informatik
-
-Statistik ist ein wichtiges Werkzeug in der angewandten Informatik, das die Analyse und Interpretation von Daten 
-ermöglicht, um Entscheidungsfindungen zu unterstützen und Algorithmen zu verbessern. Wichtige Konzepte
-
-Deskriptive Statistik: Fasst Daten mit Maßzahlen wie Mittelwert, Median, Modus und Standardabweichung zusammen. Diese 
-Werkzeuge helfen, Datenverteilungen und Variabilität zu verstehen, was für die Datenvorverarbeitung und explorative 
-Datenanalyse unerlässlich ist. 
-Inferenzstatistik: Beinhaltet das Treffen von Vorhersagen über eine Population 
-basierend auf Stichprobendaten. Techniken wie Hypothesentests und Konfidenzintervalle werden verwendet, um Modelle 
-und Algorithmen zu validieren.
-
-Wahrscheinlichkeit: Misst die Wahrscheinlichkeit von Ereignissen und ist grundlegend für das maschinelle Lernen, 
-um Modellvorhersagen und Unsicherheiten zu verstehen.
-
-Regressionsanalyse: Untersucht Beziehungen zwischen Variablen. Lineare und logistische Regression werden häufig in 
-der prädiktiven Modellierung und Merkmalsauswahl verwendet."""
-
-schema = r'''
-question-kv ::= "\"question\"" space ":" space string
-options-kv ::= "\"options\"" space ":" space options
-correct-answer-kv ::= "\"correct_answer\"" space ":" space string
-explanation-kv ::= "\"explanation\"" space ":" space string
-options ::= "[" space (string ("," space string)*)? "]" space
-string ::= "\"" char* "\"" space
-char ::= [^"\\\x7F\x00-\x1F] | [\\] (["\\bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])
-root ::= "{" space question-kv "," space options-kv "," space correct-answer-kv ( "," space ( explanation-kv ) )? "}" space
-space ::= [ \t\n]?
-'''
+from langchain_community.llms import Ollama
+from langchain_core.callbacks import CallbackManager, StreamingStdOutCallbackHandler
+from langchain.chains.prompt_selector import ConditionalPromptSelector
+from langchain_core.prompts import PromptTemplate
+import re
 
 
-def get_prompt(question: str, system_prompt: str) -> str:
-    texts = [f'[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n', f'{question.strip()} [/INST]']
-    return ''.join(texts)
+# stream tokens as they are being generated
+ollama_llm = Ollama(
+    model="llama3",
+    callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+    verbose=True,
+    format="json",
 
-
-prompt = get_prompt("Statistics", sys_prompt)
-print("Prompt:\n" + prompt)
-
-grammar = LlamaGrammar.from_string(grammar=schema, verbose=True)
-print(grammar)
-client = Llama(
-    model_path="./models/zephyr-7b-beta.Q8_0.gguf",
-    temperature=0.4,  # 0 is more deterministic (focused), 1 is more random (creative)
-    n_ctx=2048,
-    n_threads=12,
-    last_n_tokens_size=70,
-    n_gpu_layers=30
 )
 
-answer = client(
-    prompt,
-    grammar=grammar,
-    stream=False,
-    # temperature=0.4,
-    top_p=0.95,
-    top_k=50,
-    repeat_penalty=1.7,
-    max_tokens=2000,
+DEFAULT_LLAMA_SEARCH_PROMPT = PromptTemplate(
+    input_variables=["text", "num_questions"],
+    template="""<<SYS>> \n Du bist ein Assistent, der damit beauftragt ist, Quizfragen zu generieren.
+    Du kannst nur auf Deutsch und im JSON-Format antworten, ohne Beisätze oder unnötige Informationen. \n\n
+    Nutze das folgende Format: \n\n
+    {{ "question": "Fragetext", \n
+    "answer": "Antworttext" }} \n\n
+    <</SYS>> \n\n 
+    [INST] Generiere {num_questions} Quizfragen aus dem folgenden Text: \n\n {text} \n\n Fragen: \n\n
+    [/INST]""",
 )
-print(answer)
+
+DEFAULT_SEARCH_PROMPT = PromptTemplate(
+    input_variables=["text", "num_questions"],
+    template="""Du bist ein Assistent, der damit beauftragt ist, Quizfragen zu generieren. \
+    Du kannst nur auf Deutsch und im JSON-Format antworten, ohne Beisätze oder unnötige Informationen. \n\n
+    Nutze das folgende Format: \n\n
+    {{ "question": "Fragetext", \n
+    "answer": "Antworttext" }} \n\n
+    Generiere {num_questions} Quizfragen aus dem folgenden Text: \n\n {text} \n\n Fragen:""",
+)
+
+QUESTION_PROMPT_SELECTOR = ConditionalPromptSelector(
+    default_prompt=DEFAULT_SEARCH_PROMPT,
+    conditionals=[(lambda llm: isinstance(ollama_llm, Ollama), DEFAULT_LLAMA_SEARCH_PROMPT)],
+)
+
+prompt = QUESTION_PROMPT_SELECTOR.get_prompt(ollama_llm)
+
+# Create the LLM chain
+llm_chain = prompt | ollama_llm
+
+
+# Function to generate questions
+def generate_questions(text, num_questions=5):
+    response = (llm_chain.invoke({"text": text, "num_questions": num_questions}))
+    return response
+
+
+# Function to parse questions with a regex pattern
+def parse_questions(generated_text):
+    questions = []
+    pattern = re.compile(r"Question: (.*?) Answer: (.*?)(?= Question:|$)", re.DOTALL)
+    matches = pattern.findall(generated_text)
+    for match in matches:
+        question, answer = match
+        questions.append({
+            "question": question.strip(),
+            "answer": answer.strip()
+        })
+    return questions
+
+
+# Function to convert to GIFT format
+def convert_to_gift(questions):
+    gift_format = ""
+    for q in questions:
+        gift_format += f"::Question:: {q['question']} {{\n={q['answer']}\n~Wrong Answer 1\n~Wrong Answer 2\n}}\n"
+    return gift_format
