@@ -71,5 +71,5 @@ def parse_questions(generated_text):
 def convert_to_gift(questions):
     gift_format = ""
     for q in questions:
-        gift_format += f"::Question:: {q['question']} {{\n={q['answer']}\n~Wrong Answer 1\n~Wrong Answer 2\n}}\n"
+        gift_format += str(q) + "\n"
     return gift_format
