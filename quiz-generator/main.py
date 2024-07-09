@@ -4,14 +4,12 @@ from langchain.chains.prompt_selector import ConditionalPromptSelector
 from langchain_core.prompts import PromptTemplate
 import re
 
-
 # stream tokens as they are being generated
 ollama_llm = Ollama(
     model="llama3",
     callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
     verbose=True,
-    format="json",
-
+    format="json"
 )
 
 DEFAULT_LLAMA_SEARCH_PROMPT = PromptTemplate(
@@ -41,7 +39,11 @@ QUESTION_PROMPT_SELECTOR = ConditionalPromptSelector(
     conditionals=[(lambda llm: isinstance(ollama_llm, Ollama), DEFAULT_LLAMA_SEARCH_PROMPT)],
 )
 
-prompt = QUESTION_PROMPT_SELECTOR.get_prompt(ollama_llm)
+prompt = PromptTemplate(input_variables=["text", "num_questions"],
+                        template="Generiere {num_questions} Quizfragen aus dem folgenden Text: \n\n "
+                                 "{text} \n\n "
+                                 "Fragen:")
+# QUESTION_PROMPT_SELECTOR.get_prompt(ollama_llm))
 
 # Create the LLM chain
 llm_chain = prompt | ollama_llm
@@ -71,5 +73,5 @@ def parse_questions(generated_text):
 def convert_to_gift(questions):
     gift_format = ""
     for q in questions:
-        gift_format += str(q) + "\n"
+        gift_format += str(q) + "\n\n"
     return gift_format
