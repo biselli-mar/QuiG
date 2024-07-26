@@ -1,7 +1,6 @@
 import streamlit as st
 from extractor import extract_text_from_pdf
-from main import generate_questions, parse_questions, convert_to_gift
-from question import Question
+from main import generate_questions, convert_to_gift
 import os
 
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
@@ -10,11 +9,11 @@ os.environ["LANGCHAIN_PROJECT"] = "Moodle Quiz Generator"
 os.environ["LANGCHAIN_API_KEY"] = "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"
 
 # Sample questions
-sample_questions = [
-    Question("What is the capital of France?", ["Paris", "London", "Berlin", "Madrid"], 0),
-    Question("What is 2 + 2?", ["3", "4", "5", "6"], 1),
-    Question("What is the largest planet?", ["Earth", "Mars", "Jupiter", "Saturn"], 2)
-]
+# sample_questions = [
+#     Question("What is the capital of France?", ["Paris", "London", "Berlin", "Madrid"], 0),
+#     Question("What is 2 + 2?", ["3", "4", "5", "6"], 1),
+#     Question("What is the largest planet?", ["Earth", "Mars", "Jupiter", "Saturn"], 2)
+# ]
 selected_questions = []
 
 
@@ -32,7 +31,7 @@ def update_text(value):
 
 
 def list_questions(questions):
-    for i, q in enumerate(questions):
+    for i, q in questions: # enumerate(questions):
         with ((st.container())):
             col1, col2 = st.columns([0.05, 0.95])
             with col1:
@@ -46,7 +45,7 @@ def list_questions(questions):
                                                key=f"question_{i}",
                                                label_visibility="collapsed")
                     st.write("Antworten:")
-                    for j, answer in enumerate(q.answers):
+                    for j, answer in q.answers:  # enumerate(q.answers):
                         answer_col1, answer_col2 = st.columns([0.02, 0.98])
                         with answer_col1:
                             st.write(chr(65 + j))
@@ -76,7 +75,7 @@ def main():
     if uploaded_file is not None:
         with st.spinner("Extrahiere Text..."):
             text = extract_text(uploaded_file.read())
-        st.text_area("Text", text, height=300, key="extracted_text")
+        user_input = st.text_area("Text", text, height=300, key="extracted_text")
 
         st.divider()
         st.header("Fragen generieren")
@@ -84,10 +83,10 @@ def main():
         num_questions = st.select_slider("Anzahl der Fragen", options=range(1, 11), value=5)
 
         if st.button("Fragen generieren"):
-            questions_text = generate_questions(text, num_questions)
-            questions = parse_questions(questions_text)
+            quiz = generate_questions(user_input, num_questions)
+            # questions = parse_questions(questions_text)
             st.write("Generierte Fragen:")
-            list_questions(questions)
+            list_questions(quiz.questions)
             st.download_button("Fragen herunterladen", convert_to_gift(selected_questions),
                                "questions.gift", "text/plain")
 
