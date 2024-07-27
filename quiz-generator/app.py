@@ -1,6 +1,6 @@
 import streamlit as st
 from extractor import extract_text_from_pdf
-from main import generate_questions, convert_to_gift
+from main import generate_questions, convert_to_gift, summarize_docs, split_text
 import os
 
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
@@ -8,13 +8,17 @@ os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"] = "Moodle Quiz Generator"
 os.environ["LANGCHAIN_API_KEY"] = "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"
 
-# Sample questions
-# sample_questions = [
-#     Question("What is the capital of France?", ["Paris", "London", "Berlin", "Madrid"], 0),
-#     Question("What is 2 + 2?", ["3", "4", "5", "6"], 1),
-#     Question("What is the largest planet?", ["Earth", "Mars", "Jupiter", "Saturn"], 2)
-# ]
+quiz = None
 selected_questions = []
+
+if 'generated' not in st.session_state:
+    st.session_state.generated = False
+
+if 'selected_questions' not in st.session_state:
+    st.session_state.selected_questions = []
+
+if 'quiz' not in st.session_state:
+    st.session_state.quiz = None
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -26,12 +30,15 @@ def extract_text(file):
     return text
 
 
-def update_text(value):
-    st.session_state.text = value
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_quiz(text, num_questions):
+    return generate_questions(text, num_questions)
 
 
-def list_questions(questions):
-    for i, q in questions: # enumerate(questions):
+def list_questions(quiz):
+    if not quiz or not quiz.questions:
+        return
+    for i, q in enumerate(quiz.questions):
         with ((st.container())):
             col1, col2 = st.columns([0.05, 0.95])
             with col1:
@@ -45,7 +52,7 @@ def list_questions(questions):
                                                key=f"question_{i}",
                                                label_visibility="collapsed")
                     st.write("Antworten:")
-                    for j, answer in q.answers:  # enumerate(q.answers):
+                    for j, answer in enumerate(q.answers):
                         answer_col1, answer_col2 = st.columns([0.02, 0.98])
                         with answer_col1:
                             st.write(chr(65 + j))
@@ -59,16 +66,12 @@ def list_questions(questions):
                                                         options=[chr(65 + j) for j in range(len(q.answers))],
                                                         index=q.correct_answer,
                                                         key=f"correct_{i}")) - 65
-                    if selected:
-                        selected_questions.append(q)
+            if selected:
+                selected_questions.append(q)
 
 
 def main():
     st.title("Quiz-Generator")
-
-    # Initialize session state
-    # if 'text' not in st.session_state:
-    #     st.session_state.text = 'original'
 
     uploaded_file = st.file_uploader("Wählen Sie eine PDF- oder LaTeX-Datei", type=["pdf", "tex"])
 
@@ -76,21 +79,30 @@ def main():
         with st.spinner("Extrahiere Text..."):
             text = extract_text(uploaded_file.read())
         user_input = st.text_area("Text", text, height=300, key="extracted_text")
+        summary = ""
 
         st.divider()
         st.header("Fragen generieren")
 
-        num_questions = st.select_slider("Anzahl der Fragen", options=range(1, 11), value=5)
+        with st.form("generate_questions"):
 
-        if st.button("Fragen generieren"):
-            quiz = generate_questions(user_input, num_questions)
-            # questions = parse_questions(questions_text)
+            num_questions = st.select_slider("Anzahl der Fragen", options=range(1, 11), value=5)
+            submitted = st.form_submit_button("Generieren")
+
+            if submitted:
+                st.session_state.generated = True
+                with st.spinner("Generiere Fragen..."):
+                    docs = split_text(user_input)
+                    summary = summarize_docs(docs)
+                    # generate_questions(summary, num_questions)
+                    st.session_state.quiz = get_quiz(summary, num_questions)
+
+        if st.session_state.generated:
             st.write("Generierte Fragen:")
-            list_questions(quiz.questions)
-            st.download_button("Fragen herunterladen", convert_to_gift(selected_questions),
-                               "questions.gift", "text/plain")
+            list_questions(st.session_state.quiz)
 
-        # list_questions(sample_questions)  # should be indentend later
+        st.download_button("Ausgewählte Fragen herunterladen", convert_to_gift(selected_questions),
+                           "questions.gift", "text/plain")
 
 
 if __name__ == "__main__":
