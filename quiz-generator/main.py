@@ -54,7 +54,7 @@ def split_text(text):
         list: A list of document chunks.
     """
     splitter = MarkdownTextSplitter(
-        chunk_size=1000,
+        chunk_size=5000,
         chunk_overlap=200)
     docs = splitter.create_documents([text])
     logging.info("Text split into %s documents.", len(docs))
