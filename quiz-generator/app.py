@@ -1,5 +1,7 @@
 import streamlit as st
-from extractor import extract_text_from_pdf
+from openai import APIConnectionError
+
+from extractor import extract_text_from_pdf, extract_text_from_latex
 from main import generate_questions, convert_to_gift, summarize_docs, split_text
 import os
 
@@ -23,10 +25,10 @@ if 'quiz' not in st.session_state:
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def extract_text(file):
-    # if file.type == "application/pdf":
-    text = extract_text_from_pdf(file)
-    # else:
-    #    text = extract_text_from_latex(file)
+    if file.type == "application/pdf":
+        text = extract_text_from_pdf(file.read())
+    else:
+        text = extract_text_from_latex(file.read())
     return text
 
 
@@ -73,13 +75,13 @@ def list_questions(quiz):
 def main():
     st.title("Quiz-Generator")
 
-    uploaded_file = st.file_uploader("Wählen Sie eine PDF- oder LaTeX-Datei", type=["pdf", "tex"])
+    uploaded_file = st.file_uploader("Wählen Sie eine PDF- oder LaTeX-Datei", type=["pdf", "tex"],
+                                     accept_multiple_files=False)
 
     if uploaded_file is not None:
         with st.spinner("Extrahiere Text..."):
-            text = extract_text(uploaded_file.read())
+            text = extract_text(uploaded_file)
         user_input = st.text_area("Text", text, height=300, key="extracted_text")
-        summary = ""
 
         st.divider()
         st.header("Fragen generieren")
@@ -90,19 +92,27 @@ def main():
             submitted = st.form_submit_button("Generieren")
 
             if submitted:
-                st.session_state.generated = True
                 with st.spinner("Generiere Fragen..."):
                     docs = split_text(user_input)
-                    summary = summarize_docs(docs)
+                    try:
+                        # only when text is too long for context window
+                        if len(docs) > 1:
+                            docs = summarize_docs(docs)
+                        summary = docs
+                    except APIConnectionError:
+                        st.error(f"Verbindung zum API-Server fehlgeschlagen. Stelle sicher, dass der"
+                                 " LLM-Server läuft und unter der angegebenen URL erreichbar ist.")
+                        return
                     # generate_questions(summary, num_questions)
                     st.session_state.quiz = get_quiz(summary, num_questions)
+                    st.session_state.generated = True
 
         if st.session_state.generated:
             st.write("Generierte Fragen:")
             list_questions(st.session_state.quiz)
 
-        st.download_button("Ausgewählte Fragen herunterladen", convert_to_gift(selected_questions),
-                           "questions.gift", "text/plain")
+            st.download_button("Ausgewählte Fragen herunterladen", convert_to_gift(selected_questions),
+                               "questions.gift", "text/plain")
 
 
 if __name__ == "__main__":
