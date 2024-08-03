@@ -1,17 +1,19 @@
 import logging
 import sys
 import streamlit as st
-import os
+import const
+
 
 if 'url' not in st.session_state:  # Local server URL - LM Studio in this case
     st.session_state.url = "http://localhost:1234/v1/"
 if 'api_key' not in st.session_state:
     st.session_state.api_key = None
-
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
-os.environ["LANGCHAIN_PROJECT"] = "Moodle Quiz Generator"
-os.environ["LANGCHAIN_API_KEY"] = "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"
+if 'map_prompt_template' not in st.session_state:
+    st.session_state.map_prompt_template = const.map_prompt_template
+if 'reduce_prompt_template' not in st.session_state:
+    st.session_state.reduce_prompt_template = const.reduce_prompt_template
+if 'generate_query' not in st.session_state:
+    st.session_state.generate_query = const.generate_query
 
 logging.basicConfig(
     level=logging.INFO,
