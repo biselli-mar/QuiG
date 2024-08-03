@@ -57,13 +57,13 @@ def show_multiple_choice_question(q, i):
         with answer_col1:
             st.write(chr(65 + j))
         with answer_col2:
-            q.answers[j] = st.text_input(f"Antwort {j}",
+            q.answers[j] = st.text_input(f"Answer {j}",
                                          value=answer,
                                          key=f"answer_{i}_{j}",
                                          label_visibility="collapsed")
-    if st.button("Antwort hinzufügen", key=f"add_answer_{q.question}"):
+    if st.button("Add answer", key=f"add_answer_{q.question}"):
         q.answers.append("")
-    q.correct_answer = ord(st.selectbox(f"Korrekte Antwort",
+    q.correct_answer = ord(st.selectbox("Correct answer",
                                         options=[chr(65 + j) for j in range(len(q.answers))],
                                         index=q.correct_answer,
                                         key=f"correct_{i}")) - 65
@@ -79,7 +79,7 @@ def show_true_false_question(q, i):
         st.write("True")
         st.write("False")
     q.correct_answer = TypeAdapter(bool).validate_python(
-        st.selectbox(f"Korrekte Antwort",
+        st.selectbox("Correct answer",
                      options=["True", "False"],
                      index=q.correct_answer,
                      key=f"correct_{i}"))
@@ -92,11 +92,11 @@ def show_short_answer_question(q, i):
         with answer_col1:
             st.write(chr(65 + j))
         with answer_col2:
-            q.answers[j] = st.text_input(f"Antwort {j}",
+            q.answers[j] = st.text_input(f"Answer {j}",
                                          value=answer,
                                          key=f"answer_{i}_{j}",
                                          label_visibility="collapsed")
-    if st.button("Antwort hinzufügen", key=f"add_answer_{q.question}"):
+    if st.button("Add answer", key=f"add_answer_{q.question}"):
         q.answers.append("")
 
 
@@ -111,12 +111,12 @@ def list_questions(quiz):
                                        key=f"select_{i}",
                                        label_visibility="collapsed")
             with col2:
-                with st.expander(f"Frage {i + 1}", expanded=True):
+                with st.expander(f"Question {i + 1}", expanded=True):
                     q.question = st.text_input("Frage",
                                                value=q.question,
                                                key=f"question_{i}",
                                                label_visibility="collapsed")
-                    st.write("Antworten:")
+                    st.write("Answer options:")
                     # streamlit dev mode might mess with this because of the way it reloads modules
                     # -> class identities change and isinstance checks fail
                     if isinstance(q, MultipleChoiceQuestion) or isinstance(q, Question):
@@ -126,7 +126,7 @@ def list_questions(quiz):
                     elif isinstance(q, ShortAnswerQuestion):
                         show_short_answer_question(q, i)
                     else:
-                        st.error("Unbekannter Fragetyp: " + str(type(q)))
+                        st.error("Unknown question type.")
             if selected:
                 selected_questions.append(q)
 
@@ -136,21 +136,23 @@ def main():
     get_quiz.clear()
     st.title("Quiz-Generator")
 
-    uploaded_file = st.file_uploader("Wählen Sie eine PDF- oder LaTeX-Datei", type=["pdf", "tex"],
+    uploaded_file = st.file_uploader("Upload a document (PDF or LaTeX)",
+                                     type=["pdf", "tex"],
                                      accept_multiple_files=False)
 
     if uploaded_file is not None:
-        with st.spinner("Extrahiere Text..."):
+        with st.spinner("Extracting text..."):
             text = extract_text(uploaded_file)
         user_input = st.text_area("Text", text, height=300, key="extracted_text")
 
         st.divider()
-        st.header("Fragen")
+        st.header("Questions")
 
         with st.form("generate_questions"):
-            num_questions = st.select_slider("Anzahl der Fragen", options=range(1, 11), value=5)
-            if st.form_submit_button("Generieren"):
-                with st.spinner("Generiere Fragen..."):
+            num_questions = st.select_slider("Number of questions",
+                                             options=range(1, 11), value=5)
+            if st.form_submit_button("Generate"):
+                with st.spinner("Generating questions..."):
                     docs = split_text(user_input)
                     try:
                         # only when text is too long for context window
@@ -159,15 +161,15 @@ def main():
                         st.session_state.quiz = get_quiz(docs, num_questions)
                         st.session_state.generated = True
                     except APIConnectionError:
-                        st.error(f"Verbindung zum Server fehlgeschlagen. Stelle sicher, dass der"
-                                 " LLM-Server läuft und unter der angegebenen URL erreichbar ist.")
+                        st.error("Connection to server failed. "
+                                 "Make sure the LLM server is running and reachable at the specified URL.")
                         return
 
         if st.session_state.generated:
-            st.write("Generierte Fragen:")
+            st.write("Generated questions:")
             list_questions(st.session_state.quiz)
 
-            st.download_button("Ausgewählte Fragen herunterladen", convert_to_gift(selected_questions),
+            st.download_button("Download selected questions", convert_to_gift(selected_questions),
                                "questions.gift", "text/plain")
 
 
