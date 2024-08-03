@@ -8,8 +8,8 @@ def extract_text_from_pdf(pdf_stream):
     file = pymupdf.open(stream=pdf_stream, filetype="pdf")  # sort=True
     md_text = pymupdf4llm.to_markdown(file, write_images=False, page_chunks=False)
     md_text = clean_text(md_text)
-
     file.close()
+
     return md_text
 
 
@@ -22,13 +22,9 @@ def extract_text_from_latex(latex_stream):
 
 
 def clean_text(text):
-    # Replace multiple newlines with a single newline
+    # Replace multiple newlines, spaces and tabs with single ones
     text = re.sub(r'\n\s*\n+', '\n', text)
-
-    # Replace multiple spaces with a single space
     text = re.sub(r' +', ' ', text)
-
-    # Replace multiple tabs with a single tab
     text = re.sub(r'\t+', '\t', text)
 
     # Ensure lines containing only tabs or spaces are reduced to a single newline
