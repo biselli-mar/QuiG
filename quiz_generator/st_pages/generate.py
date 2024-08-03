@@ -14,7 +14,6 @@ sys.path.append("../")
 
 from quiz_generator.Quiz import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion, Quiz, Question
 from quiz_generator.extractor import extract_text_from_pdf, extract_text_from_latex
-from quiz_generator.const import map_prompt_template, reduce_prompt_template, generate_query
 
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
@@ -33,7 +32,6 @@ if 'quiz' not in st.session_state:
 # Initialize the ChatOpenAI model with local server URL
 llm = ChatOpenAI(
     api_key=st.session_state.api_key or "lmstudio",
-    # model=LLM,
     max_retries=2,
     base_url="http://localhost:1234/v1/"
 )
@@ -114,9 +112,8 @@ def summarize_docs(docs):
     return summary["output_text"]
 
 
-@st.cache_data(ttl=3600, show_spinner=False)  # , hash_funcs={Quiz: lambda x: x.dict()}
+@st.cache_data(ttl=3600, show_spinner=False)
 def generate_questions(_text, num_questions=5):
-    # idee: pro doc eine frage generieren
     """
     Generate quiz questions from the input text.
 
