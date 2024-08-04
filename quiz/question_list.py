@@ -47,26 +47,16 @@ def show_multiple_choice_question(q, i):
 
 
 def show_true_false_question(q, i):
-    st.write("Answer options:")
-    answer_col1, answer_col2 = st.columns([0.02, 0.98])
-    with answer_col1:
-        st.write("A")
-        st.write("B")
-    with answer_col2:
-        st.write("True")
-        st.write("False")
     q.correct_answer = TypeAdapter(bool).validate_python(
         st.selectbox("Correct answer",
                      options=["True", "False"],
                      index=q.correct_answer,
-                     key=f"correct_{i}"))
+                     key=f"answer_{i}"))
 
 
 def show_short_answer_question(q, i):
     st.write("Valid answer options:")
     list_answer_options(q, i)
-    if st.button("Add answer", key=f"add_answer_{q.question}"):
-        q.answers.append("")
 
 
 def list_answer_options(q, i):
@@ -79,3 +69,6 @@ def list_answer_options(q, i):
                                          value=answer,
                                          key=f"answer_{i}_{j}",
                                          label_visibility="collapsed")
+    if st.button("Add answer", key=f"add_answer_{q.question}"):
+        q.answers.append("")
+        st.rerun()
