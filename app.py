@@ -7,10 +7,10 @@ if 'url' not in st.session_state:  # Local server URL - LM Studio in this case
     st.session_state.url = "http://localhost:1234/v1/"
 if 'api_key' not in st.session_state:
     st.session_state.api_key = None
-if 'map_prompt_template' not in st.session_state:
-    st.session_state.map_prompt_template = const.map_prompt_template
-if 'reduce_prompt_template' not in st.session_state:
-    st.session_state.reduce_prompt_template = const.reduce_prompt_template
+if 'map_prompt' not in st.session_state:
+    st.session_state.map_prompt = const.map_prompt_template
+if 'reduce_prompt' not in st.session_state:
+    st.session_state.reduce_prompt = const.reduce_prompt_template
 if 'generate_query' not in st.session_state:
     st.session_state.generate_query = const.generate_query
 if 'generated' not in st.session_state:
@@ -42,5 +42,3 @@ else:
         "Configuration": [prompts_page, llm_page]
     })
 pg.run()
-
-# st.session_state.generated = False
