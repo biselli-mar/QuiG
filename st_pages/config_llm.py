@@ -4,7 +4,7 @@ st.set_page_config(page_title="Configuration", page_icon=":gear:")
 st.title("🛠️ LLM Configuration")
 
 st.write("This app uses the OpenAI API for question generation. You can use the [API Key]"
-         "(https://platform.openai.com/account/api-keys) from your OpenAI account"
+         "(https://platform.openai.com/account/api-keys) from your OpenAI account "
          "or host a local instance of a LLM server.")
 
 st.divider()
