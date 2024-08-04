@@ -3,7 +3,6 @@ import sys
 import streamlit as st
 import const
 
-
 if 'url' not in st.session_state:  # Local server URL - LM Studio in this case
     st.session_state.url = "http://localhost:1234/v1/"
 if 'api_key' not in st.session_state:

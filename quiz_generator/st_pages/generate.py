@@ -12,8 +12,9 @@ import sys
 
 sys.path.append("../")
 
-from quiz_generator.Quiz import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion, Quiz, Question
-from quiz_generator.extractor import extract_text_from_pdf, extract_text_from_latex
+from Quiz import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion, Quiz, Question
+from extractor import extract_text_from_pdf, extract_text_from_latex
+from const import CHUNK_SIZE, CHUNK_OVERLAP, MAX_TOKENS
 
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
@@ -76,8 +77,8 @@ def split_text(text):
         list: A list of document chunks.
     """
     splitter = MarkdownTextSplitter(
-        chunk_size=30000,
-        chunk_overlap=1000)
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP)
     docs = splitter.create_documents([text])
     logging.info("Text split into %s document(s).", len(docs))
     return docs
@@ -101,7 +102,7 @@ def summarize_docs(docs):
         chain_type="map_reduce",
         map_prompt=map_prompt,
         combine_prompt=reduce_prompt,
-        token_max=5000  # default: 3000
+        token_max=MAX_TOKENS
     )
 
     logging.info("Invoking map-reduce chain...")

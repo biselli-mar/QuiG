@@ -19,3 +19,10 @@ Hilfreiche Antwort:"""
 generate_query = """Generiere {num_questions} Quizfragen aus dem folgenden Text:
                     
 {text}"""
+
+# Variables for chunking text with MarkdownTextSplitter
+CHUNK_SIZE = 30000
+CHUNK_OVERLAP = 1000
+
+# load_summarize_chain: max. number of tokens to group documents into
+MAX_TOKENS = 5000

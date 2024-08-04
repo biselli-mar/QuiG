@@ -1,5 +1,5 @@
 import streamlit as st
-from quiz_generator.const import map_prompt_template, reduce_prompt_template, generate_query
+from const import map_prompt_template, reduce_prompt_template, generate_query
 
 st.set_page_config(page_title="Configuration", page_icon=":gear:")
 st.title("🛠️ Prompt Configuration")
