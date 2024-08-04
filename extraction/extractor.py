@@ -2,10 +2,21 @@ import re
 import pymupdf
 import pymupdf4llm
 from pylatexenc.latex2text import LatexNodes2Text
+import streamlit as st
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def extract_text(file):
+    if file.type == "application/pdf":
+        extracted_text = extract_text_from_pdf(file.read())
+    else:
+        extracted_text = extract_text_from_latex(file.read())
+
+    return extracted_text
 
 
 def extract_text_from_pdf(pdf_stream):
-    file = pymupdf.open(stream=pdf_stream, filetype="pdf")  # sort=True
+    file = pymupdf.open(stream=pdf_stream, filetype="pdf")
     md_text = pymupdf4llm.to_markdown(file, write_images=False, page_chunks=False)
     md_text = clean_text(md_text)
     file.close()

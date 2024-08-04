@@ -16,9 +16,14 @@ alles umfassenden Zusammenfassung zu kombinieren.
 
 Hilfreiche Antwort:"""
 
-generate_query = """Generiere {num_questions} Quizfragen aus dem folgenden Text:
+generate_query = """Generiere {num_questions} Quizfrage(n) aus dem folgenden Text:
                     
 {text}"""
+
+system_prompt = """You are an assistant tasked with generating quiz questions. You can only respond in the language
+used in the input text, without clauses or unnecessary information.
+
+{format_instructions}"""
 
 # Variables for chunking text with MarkdownTextSplitter
 CHUNK_SIZE = 30000

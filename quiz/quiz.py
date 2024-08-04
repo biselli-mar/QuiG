@@ -2,23 +2,6 @@ from typing import Union
 from langchain_core.pydantic_v1 import BaseModel, Field
 
 
-class Question(BaseModel):
-    """Class for storing a question and its answer choices."""
-    question: str = Field(..., description="The question")
-    answers: list[str] = Field(..., description="List of answer choices")
-    correct_answer: int = Field(..., description="Index of the correct answer, from 0 to len(answers)-1")
-
-    def __str__(self):
-        newline = "\n"
-        gift_format = f"{self.question} {{\n"
-        for i, answer in enumerate(self.answers):
-            gift_format += f"{'=' if i == self.correct_answer else '~'} {answer}"
-            gift_format += newline
-        gift_format += "}"
-
-        return gift_format
-
-
 class MultipleChoiceQuestion(BaseModel):
     """Class for storing a question and its answer choices."""
     question: str = Field(..., description="The question")
