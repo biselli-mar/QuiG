@@ -1,7 +1,8 @@
 import logging
 import streamlit as st
 from pydantic import TypeAdapter
-from quiz.question import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion
+
+from quiz.quiz import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion
 
 
 def list_questions(quiz, selected_questions):
@@ -36,7 +37,6 @@ def list_questions(quiz, selected_questions):
                 selected_questions.append(q)
 
 
-@st.experimental_fragment()
 def show_multiple_choice_question(q, i):
     st.write("Answer options:")
     list_answer_options(q, i)
@@ -46,7 +46,6 @@ def show_multiple_choice_question(q, i):
                                         key=f"correct_{i}")) - 65
 
 
-@st.experimental_fragment()
 def show_true_false_question(q, i):
     st.write("Answer options:")
     answer_col1, answer_col2 = st.columns([0.02, 0.98])
@@ -63,7 +62,6 @@ def show_true_false_question(q, i):
                      key=f"correct_{i}"))
 
 
-@st.experimental_fragment()
 def show_short_answer_question(q, i):
     st.write("Valid answer options:")
     list_answer_options(q, i)

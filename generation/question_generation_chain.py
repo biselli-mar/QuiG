@@ -2,7 +2,6 @@ import logging
 from langchain_core.exceptions import OutputParserException
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 import streamlit as st
 from openai import AuthenticationError
 
@@ -14,7 +13,7 @@ parser = PydanticOutputParser(pydantic_object=Quiz)
 generate_questions_prompt = (ChatPromptTemplate.from_messages([("system", system_prompt), ("human", "{query}")])
                              .partial(format_instructions=parser.get_format_instructions()))
 
-question_chain = generate_questions_prompt | llm | parser
+question_chain = generate_questions_prompt | llm.llm | parser
 
 
 @st.cache_data(ttl=3600, show_spinner=False)

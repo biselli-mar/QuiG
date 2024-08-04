@@ -2,9 +2,11 @@ import logging
 import streamlit as st
 from openai import APIConnectionError
 
-from extractor import extract_text
-from question_list import list_questions
+from extraction.extractor import extract_text
+from generation.question_generation_chain import generate_questions
+from generation.summarization import summarize_docs, split_text
 from quiz.export import convert_to_gift
+from quiz.question_list import list_questions
 
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
@@ -15,7 +17,7 @@ selected_questions = []
 def reset_state():
     st.session_state.generated = False
     st.session_state.quiz = None
-    generate_questions.clear()
+    # generate_questions.clear()
     logging.info("State reset.")
 
 
