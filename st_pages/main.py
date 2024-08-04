@@ -6,9 +6,11 @@ st.title("🛩️ Moodle-Quiz-Generator")
 st.write("This app generates quiz questions from a given text. "
          "Upload a PDF or LaTeX document and generate questions based on the extracted text.")
 st.write("The generated questions can be downloaded in GIFT format and imported into Moodle.")
-st.write("The app uses the OpenAI API for question generation. "
-         "To use the app, you either need an API key from OpenAI or run this app locally with a self-hosted LLM server."
-         "You can get your OpenAI API key [here](https://platform.openai.com/account/api-keys). "
+st.write("This app uses the OpenAI API for question generation. "
+         "To use the app, you either need an API key from OpenAI "
+         "or [run this app locally](https://github.com/naedmi/moodle-quiz-generator) "
+         "with a self-hosted LLM server. ")
+st.write("You can get your OpenAI API key [here](https://platform.openai.com/account/api-keys). "
          "For local deployment, you can put anything as the API key.")
 
 with st.form("config"):
