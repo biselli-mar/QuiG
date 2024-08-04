@@ -1,6 +1,7 @@
 import logging
 import streamlit as st
-from openai import APIConnectionError
+from langchain_core.exceptions import OutputParserException
+from openai import APIConnectionError, AuthenticationError
 
 from extraction.extractor import extract_text
 from generation.question_generation_chain import generate_questions
@@ -17,7 +18,6 @@ selected_questions = []
 def reset_state():
     st.session_state.generated = False
     st.session_state.quiz = None
-    # generate_questions.clear()
     logging.info("State reset.")
 
 
@@ -53,6 +53,10 @@ if uploaded_file is not None:
                 except APIConnectionError:
                     st.error("Connection to server failed. "
                              "Make sure the LLM server is running and reachable at the specified URL.")
+                except AuthenticationError:
+                    st.error("Invalid OpenAI API key. Please check the API key and try again.")
+                except OutputParserException:
+                    st.error("Error parsing output. Please try again.")
 
     if st.session_state.generated:
         st.write("Generated questions:")
