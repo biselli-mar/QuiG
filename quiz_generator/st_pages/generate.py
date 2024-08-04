@@ -34,7 +34,7 @@ if 'quiz' not in st.session_state:
 llm = ChatOpenAI(
     api_key=st.session_state.api_key or "lmstudio",
     max_retries=2,
-    base_url="http://localhost:1234/v1/"
+    base_url=st.session_state.url or "http://localhost:1234/v1/"
 )
 
 # Set up a parser for Quiz object

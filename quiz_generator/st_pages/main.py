@@ -12,7 +12,7 @@ st.write("The app uses the OpenAI API for question generation. "
          "For local deployment, you can put anything as the API key.")
 
 with st.form("config"):
-    url_input = st.text_input("URL", value="http://localhost:11434/v1/")
+    url_input = st.text_input("URL", value="http://localhost:1234/v1")
     if not st.session_state.url:
         st.info("Please add the URL of the LLM server to continue.", icon="🌐")
 
