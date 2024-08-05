@@ -1,6 +1,7 @@
 import logging
 import streamlit as st
 from pydantic import TypeAdapter
+from streamlit.errors import StreamlitAPIException
 
 from quiz.quiz import MultipleChoiceQuestion, TrueFalseQuestion, ShortAnswerQuestion
 
@@ -40,10 +41,17 @@ def list_questions(quiz, selected_questions):
 def show_multiple_choice_question(q, i):
     st.write("Answer options:")
     list_answer_options(q, i)
-    q.correct_answer = ord(st.selectbox("Correct answer",
-                                        options=[chr(65 + j) for j in range(len(q.answers))],
-                                        index=q.correct_answer,
-                                        key=f"correct_{i}")) - 65
+    try:
+        q.correct_answer = ord(st.selectbox("Correct answer",
+                                            options=[chr(65 + j) for j in range(len(q.answers))],
+                                            index=q.correct_answer,
+                                            key=f"correct_{i}")) - 65
+    except StreamlitAPIException:
+        logging.error(f"Answer index out of bounds for question {i}. Defaulting to 0.")
+        q.correct_answer = ord(st.selectbox("Correct answer",
+                                            options=[chr(65 + j) for j in range(len(q.answers))],
+                                            index=0,
+                                            key=f"correct_{i}")) - 65
 
 
 def show_true_false_question(q, i):
