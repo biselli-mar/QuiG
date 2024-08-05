@@ -14,8 +14,10 @@ st.write("You can get your OpenAI API key [here](https://platform.openai.com/acc
          "For local deployment, you can put anything as the API key.")
 
 with st.form("config"):
-    url_input = st.text_input("URL", placeholder="https://api.openai.com/v1/ or http://localhost:1234/v1/")
-    key_input = st.text_input("API Key", type="password")
+    url_input = st.text_input("URL", placeholder="https://api.openai.com/v1/ or http://localhost:1234/v1/",
+                              help="URL of the LLM server. Default is the OpenAI API.")
+    key_input = st.text_input("API Key", type="password",
+                              help="Your OpenAI API key or any string for local deployment.")
 
     if not st.session_state.api_key:
         st.info("Please add your API key to continue.", icon="🗝️")
