@@ -47,6 +47,8 @@ if uploaded_file is not None:
                     if len(docs) > 1:
                         # very slow, only use if necessary
                         docs = summarize_docs(docs)
+                    else:
+                        docs = docs[0]
                     st.session_state.quiz = generate_questions(docs, num_questions)
                     if st.session_state.quiz is not None:
                         st.session_state.generated = True

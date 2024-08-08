@@ -19,8 +19,8 @@ def summarize_docs(docs):
         str: The summarized text.
     """
 
-    map_prompt = PromptTemplate(template=st.session_state.map_prompt_template, input_variables=["text"])
-    reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt_template, input_variables=["text"])
+    map_prompt = PromptTemplate(template=st.session_state.map_prompt, input_variables=["text"])
+    reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt, input_variables=["text"])
     sum_chain = load_summarize_chain(
         llm,
         chain_type="map_reduce",
