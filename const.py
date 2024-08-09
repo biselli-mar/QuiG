@@ -28,7 +28,7 @@ used in the input text, without clauses or unnecessary information.
 
 {format_instructions}"""
 
-# Variables for chunking text with MarkdownTextSplitter
+# Config for chunking text with MarkdownTextSplitter
 CHUNK_SIZE = 20000
 CHUNK_OVERLAP = 5000
 
