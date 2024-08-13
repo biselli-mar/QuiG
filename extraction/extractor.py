@@ -1,3 +1,4 @@
+import logging
 import re
 import pymupdf
 import pymupdf4llm
@@ -9,8 +10,11 @@ import streamlit as st
 def extract_text(file):
     if file.type == "application/pdf":
         extracted_text = extract_text_from_pdf(file.read())
-    else:
+    elif file.type == "application/x-tex":
         extracted_text = extract_text_from_latex(file.read())
+    else:
+        logging.error("Unsupported file type: %s", file.type)
+        extracted_text = None
 
     return extracted_text
 
