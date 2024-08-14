@@ -34,16 +34,13 @@ def extract_text_from_latex(latex_stream):
 
 def clean_text(text):
     # Replace multiple newlines, spaces and tabs with single ones
-    text = re.sub(r'\n\s*\n+', '\n', text)
-    text = re.sub(r' +', ' ', text)
-    text = re.sub(r'\t+', '\t', text)
+    text = re.sub(r"\n\s*\n+", "\n", text)
+    text = re.sub(r" +", " ", text)
+    text = re.sub(r"\t+", "\t", text)
 
     # Ensure lines containing only tabs or spaces are reduced to a single newline
-    lines = text.split('\n')
-    lines = [line if not re.match(r'^\s*$', line) else '' for line in lines]
-    text = '\n'.join(lines)
-
-    # Strip leading and trailing whitespace from the entire text
-    text = text.strip()
+    lines = text.split("\n")
+    lines = [line if not re.match(r"^\s*$", line) else "" for line in lines]
+    text = "\n".join(lines).strip()
 
     return text
