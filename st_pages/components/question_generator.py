@@ -1,36 +1,22 @@
 import logging
 import streamlit as st
+
 from langchain_core.exceptions import OutputParserException
 from openai import APIConnectionError, AuthenticationError
 
-from extraction.extractor import extract_text
 from generation.question_generation_chain import generate_questions
 from generation.summarization import summarize_docs, split_text
 from quiz.export import convert_to_gift
 from quiz.question_list import list_questions
 
-st.set_page_config(page_title="Quiz Generator", page_icon="📝")
-
-quiz = None
 selected_questions = []
-
 
 def reset_state():
     st.session_state.generated = False
     st.session_state.quiz = None
     logging.info("State reset.")
 
-
-uploaded_file = st.file_uploader("Upload a document (PDF or LaTeX)",
-                                 type=["pdf", "tex"],
-                                 accept_multiple_files=False, on_change=reset_state)
-
-if uploaded_file is not None:
-    with st.spinner("Extracting text..."):
-        text = extract_text(uploaded_file)
-
-    text_input = st.text_area("Text", text, height=300)
-
+def question_generator(text_input):
     st.divider()
     st.header("Questions")
 

@@ -19,6 +19,12 @@ if 'quiz' not in st.session_state:
     st.session_state.quiz = None
 if 'extracted_text' not in st.session_state:
     st.session_state.extracted_text = None
+if 'scraper_url' not in st.session_state:
+    st.session_state.scraper_url = "https://api.diffbot.com/v3/article"
+if 'scraper_key' not in st.session_state:
+    st.session_state.scraper_key = None
+if 'scraper_extracted_text' not in st.session_state:
+    st.session_state.scraper_extracted_text = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,7 +34,8 @@ logging.basicConfig(
 
 main_page = st.Page("st_pages/main.py", title="Main Page", icon="🏠")
 prompts_page = st.Page("st_pages/config_prompts.py", title="Prompts", icon="")
-generate_quiz_page = st.Page("st_pages/generate.py", title="Generate Quiz", icon="📝")
+generate_quiz_page = st.Page("st_pages/generate.py", title="Generate from File", icon="📝")
+generate_from_url_page = st.Page("st_pages/generate_from_url.py", title="Generate from URL", icon="🔗")
 llm_page = st.Page("st_pages/config_llm.py", title="LLM", icon="")
 
 if st.session_state.api_key is None:
@@ -38,7 +45,7 @@ if st.session_state.api_key is None:
 else:
     pg = st.navigation({
         "Moodle-Quiz-Generator": [main_page],
-        "Generate Quiz": [generate_quiz_page],
+        "Generate Quiz": [generate_quiz_page, generate_from_url_page],
         "Configuration": [prompts_page, llm_page]
     })
 pg.run()
