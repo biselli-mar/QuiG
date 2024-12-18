@@ -11,6 +11,14 @@ quiz = None
 selected_questions = []
 
 
+@st.cache(persist=True, allow_output_mutation=True)
+def RecentSummaries():
+    return []
+
+
+recent_summaries = RecentSummaries()
+st.button("Add to recent summaries", on_click=lambda: recent_summaries.append("yay"))
+
 def reset_state():
     st.session_state.generated = False
     st.session_state.quiz = None
