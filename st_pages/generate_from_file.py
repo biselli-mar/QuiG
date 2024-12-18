@@ -3,7 +3,7 @@ import streamlit as st
 
 from extraction.extractor import extract_text
 
-from st_pages.question_generator import question_generator
+from st_pages.components.question_generator import question_generator
 
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 

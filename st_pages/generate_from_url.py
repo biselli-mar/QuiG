@@ -4,7 +4,7 @@ from urllib.parse import quote
 from langchain_core.exceptions import OutputParserException
 from openai import APIConnectionError, AuthenticationError
 
-from st_pages.question_generator import question_generator
+from st_pages.components.question_generator import question_generator
 
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
