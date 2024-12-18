@@ -34,7 +34,7 @@ logging.basicConfig(
 
 main_page = st.Page("st_pages/main.py", title="Main Page", icon="🏠")
 prompts_page = st.Page("st_pages/config_prompts.py", title="Prompts", icon="")
-generate_quiz_page = st.Page("st_pages/generate.py", title="Generate from File", icon="📝")
+generate_quiz_page = st.Page("st_pages/generate_from_file.py", title="Generate from File", icon="📝")
 generate_from_url_page = st.Page("st_pages/generate_from_url.py", title="Generate from URL", icon="🔗")
 llm_page = st.Page("st_pages/config_llm.py", title="LLM", icon="")
 
