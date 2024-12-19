@@ -1,23 +1,29 @@
 import logging
 import streamlit as st
-
+import json
+from const import RECENT_SUMMARIES_PATH
 from extraction.extractor import extract_text
+
+st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
 from st_pages.components.question_generator import question_generator
 
-st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
 quiz = None
 selected_questions = []
 
 
-@st.cache(persist=True, allow_output_mutation=True)
-def RecentSummaries():
-    return []
+f_recent_summaries = open(RECENT_SUMMARIES_PATH, "r")
+recent_summaries = f_recent_summaries.read()
+f_recent_summaries.close()
 
+if recent_summaries == "":
+    recent_summaries = "[]"
+summaries_json = json.loads(recent_summaries)
 
-recent_summaries = RecentSummaries()
-st.button("Add to recent summaries", on_click=lambda: recent_summaries.append("yay"))
+with st.expander("Recent Summaries"):
+    for summary in summaries_json:
+        st.text_area(f"{summary['title']} {summary['time']}", summary['summary'], disabled=True, height=200)
 
 def reset_state():
     st.session_state.generated = False
