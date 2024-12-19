@@ -86,7 +86,7 @@ def question_generator(text_input):
 
     if st.session_state.generated:
         with st.expander("Show summary"):
-            st.write(st.session_state.last_summary)
+            st.text_area("Summary", st.session_state.last_summary, height=300)
             st.button("Save summary", on_click=append_summary_dialog)
         st.write("Generated questions:")
         list_questions(st.session_state.quiz, selected_questions)
