@@ -7,11 +7,18 @@ from extraction.extractor import extract_text
 st.set_page_config(page_title="Quiz Generator", page_icon="📝")
 
 from st_pages.components.question_generator import question_generator
+from st_pages.components.recent_summaries import recent_summary_selector
 
 
 quiz = None
 selected_questions = []
 
+def reset_state(keep_text=False):
+    if not keep_text:
+        st.session_state.last_summary = None
+    st.session_state.generated = False
+    st.session_state.quiz = None
+    logging.info("State reset.")
 
 f_recent_summaries = open(RECENT_SUMMARIES_PATH, "r")
 recent_summaries = f_recent_summaries.read()
@@ -21,24 +28,26 @@ if recent_summaries == "":
     recent_summaries = "[]"
 summaries_json = json.loads(recent_summaries)
 
-with st.expander("Recent Summaries"):
-    for summary in summaries_json:
-        st.text_area(f"{summary['title']} {summary['time']}", summary['summary'], disabled=True, height=200)
+text = ""
+reuse_summary = False
 
-def reset_state():
-    st.session_state.generated = False
-    st.session_state.quiz = None
-    logging.info("State reset.")
+with st.expander("Reuse Recent Summaries"):
+    selected_summaries = recent_summary_selector(summaries_json)
+    if selected_summaries is not None:
+        text = " ".join(selected_summaries)
+        reuse_summary = True
+        st.session_state.last_summary = text
+        reset_state(keep_text=True)
 
-
-uploaded_file = st.file_uploader("Upload a document (PDF or LaTeX)",
+if not reuse_summary:
+    uploaded_file = st.file_uploader("Upload a document (PDF or LaTeX)",
                                  type=["pdf", "tex"],
                                  accept_multiple_files=False, on_change=reset_state)
 
-if uploaded_file is not None:
+if reuse_summary:
+    question_generator(text)
+elif uploaded_file is not None: 
     with st.spinner("Extracting text..."):
         text = extract_text(uploaded_file)
-
-    text_input = st.text_area("Text", text, height=300)
-
-    question_generator(text_input)
+    question_generator(text)
+    
