@@ -25,6 +25,8 @@ if 'scraper_key' not in st.session_state:
     st.session_state.scraper_key = None
 if 'scraper_extracted_text' not in st.session_state:
     st.session_state.scraper_extracted_text = None
+if 'last_summary' not in st.session_state:
+    st.session_state.last_summary = None
 
 logging.basicConfig(
     level=logging.INFO,

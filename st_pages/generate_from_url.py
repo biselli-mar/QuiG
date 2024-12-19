@@ -20,7 +20,7 @@ def wipe_scraper_settings():
 
 
 if st.session_state.scraper_key is None:
-    with st.form("config"):
+    with st.form("scraper-config"):
         scraper_url_input = st.text_input("Scraper URL", placeholder="https://api.diffbot.com/v3/article",
                                     help="URL of the scraper server. Default is the Diffbot API if left blank.")
         key_input = st.text_input("API Key", type="password",
