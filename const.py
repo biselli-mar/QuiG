@@ -1,3 +1,9 @@
+import os
+
+APP_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+PERSISTENCE_PATH = os.path.join(APP_DIRECTORY, "persist")
+RECENT_SUMMARIES_PATH = os.path.join(PERSISTENCE_PATH, "recent_summaries.json")
+
 map_prompt_template = """Im Folgenden befindet sich eine Reihe von Dokumenten:
 
 {text}
