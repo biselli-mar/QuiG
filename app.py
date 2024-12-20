@@ -11,10 +11,16 @@ if 'map_prompt' not in st.session_state:
     st.session_state.map_prompt = const.map_prompt_template
 if 'reduce_prompt' not in st.session_state:
     st.session_state.reduce_prompt = const.reduce_prompt_template
+if 'map_prompt_limited' not in st.session_state:
+    st.session_state.map_prompt_limited = const.map_prompt_template_limited
+if 'reduce_prompt_limited' not in st.session_state:
+    st.session_state.reduce_prompt_limited = const.reduce_prompt_template_limited
 if 'generate_query' not in st.session_state:
     st.session_state.generate_query = const.generate_query
-if 'generated' not in st.session_state:
-    st.session_state.generated = False
+if 'file_generated' not in st.session_state:
+    st.session_state.file_generated = False
+if 'url_generated' not in st.session_state:
+    st.session_state.url_generated = False
 if 'quiz' not in st.session_state:
     st.session_state.quiz = None
 if 'extracted_text' not in st.session_state:

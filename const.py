@@ -13,13 +13,45 @@ Achte darauf, Beispiele und Definitionen wortgetreu zu übernehmen.
 
 Hilfreiche Antwort:"""
 
+map_prompt_template_limited = """Im Folgenden befindet sich eine Reihe von Dokumenten:
+
+{text}
+
+Identifiziere anhand der Liste von Dokumenten die Hauptthemen und wichtige Details.
+Übernehme nur die Inhalte, die zu dieser Prompt passen:
+
+{summary_content}
+
+Lasse irrelevante Informationen weg; wenn es sein muss, antworte gar nichts.
+Achte darauf alle relevanten Definitionen exakt wortgetreu zu übernehmen und sei dabei dafür
+umso umfangreicher.
+
+Hilfreiche Antwort:"""
+
+
 reduce_prompt_template = """Im Folgenden befindet sich eine Reihe von Zusammenfassungen:
 
 {text}
 
 Nutze die Zusammenfassungen, um sie zu einer endgültigen, 
 alles umfassenden Zusammenfassung zu kombinieren. 
-Achte darauf, Beispiele und Definitionen wortgetreu zu übernehmen.
+Achte darauf, Beispiele und Definitionen exakt wortgetreu zu übernehmen.
+
+Hilfreiche Antwort:"""
+
+reduce_prompt_template_limited = """Im Folgenden befindet sich eine Reihe von Dokumenten:
+
+{text}
+
+Diese wurden anhand folgender Prompt zusammengefasst:
+
+{summary_content}
+
+Prüfe nochmal, ob alle Informationen zu dieser Prompt passen.
+Nutze die Zusammenfassungen, um sie zu einer endgültigen,
+alles umfassenden Zusammenfassung zu kombinieren.
+Lasse irrelevante Informationen weg; wenn es sein muss, antworte gar nichts.
+Achte darauf alle relevanten Definitionen exakt wortgetreu zu übernehmen.
 
 Hilfreiche Antwort:"""
 

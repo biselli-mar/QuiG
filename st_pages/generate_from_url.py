@@ -15,7 +15,7 @@ selected_questions = []
 def wipe_scraper_settings():
     st.session_state.scraper_url = None
     st.session_state.scraper_key = None
-    st.session_state.generated = False
+    st.session_state.url_generated = False
     st.session_state.quiz = None
 
 
@@ -63,6 +63,4 @@ else:
             st.session_state.scraper_extracted_text = response.json()["objects"][0]["text"]
     
     if st.session_state.scraper_extracted_text is not None:
-        text_input = st.text_area("Text", st.session_state.scraper_extracted_text, height=300)
-
-        question_generator(text_input)
+        question_generator(st.session_state.scraper_extracted_text, "url_generated")

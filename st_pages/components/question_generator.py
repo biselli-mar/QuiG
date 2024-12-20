@@ -10,14 +10,15 @@ from quiz.export import convert_to_gift
 from quiz.question_list import list_questions
 
 selected_questions = []
+summary_content = None
 
-def reset_state():
-    st.session_state.generated = False
+def reset_state(generated_property):
+    st.session_state[generated_property] = False
     st.session_state.quiz = None
     logging.info("State reset.")
 
 
-def question_generator(text):
+def question_generator(text, generated_property):
     st.divider()
     text_input = st.text_area("Text", text, height=300)
     st.header("Questions")
@@ -26,19 +27,22 @@ def question_generator(text):
                                          options=range(1, 11), value=5, help="Select the number of questions "
                                                                              "to generate from the text.")
         with st.expander("Advanced options"):
-            st.text_input("Summary Topic")
+            summary_content = st.text_input("Summary Content", placeholder="Enter a prompt to limit what the model focuses on.")
         if st.form_submit_button("Generate"):
-            reset_state()
+            reset_state(generated_property)
             with st.spinner("Generating questions..."):
                 docs = split_text(text_input)
                 try:
                     # summarize if text is too long to fit in one request
-                    if len(docs) > 1:
+                    if len(docs) > 1 or summary_content is not None:
                         # very slow, only use if necessary
-                        docs = summarize_docs(docs)
+                        docs = summarize_docs(docs, summary_content)
                     else:
                         docs = docs[0]
-                    st.session_state.last_summary = docs.page_content
+                    if isinstance(docs, str):
+                        st.session_state.last_summary = docs
+                    elif hasattr(docs, "page_content"):
+                        st.session_state.last_summary = docs.page_content
                     st.session_state.quiz = generate_questions(docs, num_questions)
                     if st.session_state.quiz is not None:
                         st.session_state.generated = True
@@ -50,7 +54,7 @@ def question_generator(text):
                 except OutputParserException:
                     st.error("Error parsing output. Please try again.")
 
-    if st.session_state.generated:
+    if st.session_state[generated_property]:
         with st.expander("Show summary"):
             st.text_area("Summary", st.session_state.last_summary, height=300)
             st.button("Save summary", on_click=append_summary_dialog)
