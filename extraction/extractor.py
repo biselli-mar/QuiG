@@ -1,8 +1,9 @@
 import re
 import pymupdf
 import pymupdf4llm
-from pylatexenc.latex2text import LatexNodes2Text
+from pylatexenc.latex2text import LatexNodes2Text, get_default_latex_context_db
 import streamlit as st
+from io import StringIO
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -25,12 +26,16 @@ def extract_text_from_pdf(pdf_stream):
 
 
 def extract_text_from_latex(latex_stream):
-    latex_content = latex_stream.decode("utf-8")
-    text = LatexNodes2Text().latex_to_text(latex_content)
+    latex_content = StringIO(latex_stream.decode("utf-8")).read()
+    latex_content = clean_latex(latex_content)
+    latex_node = LatexNodes2Text(latex_context=get_default_latex_context_db(), math_mode="verbatim")
+    text = latex_node.latex_to_text(latex_content)
     text = clean_text(text)
 
     return text
 
+def clean_latex(latex):
+    return re.sub(r"\\href\{.*?\}(\{.*?\})?", "", latex)
 
 def clean_text(text):
     # Replace multiple newlines, spaces and tabs with single ones
