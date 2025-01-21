@@ -45,7 +45,7 @@ def question_generator(text, generated_property):
                         st.session_state.last_summary = docs.page_content
                     st.session_state.quiz = generate_questions(docs, num_questions)
                     if st.session_state.quiz is not None:
-                        st.session_state.generated = True
+                        st.session_state[generated_property] = True
                 except APIConnectionError:
                     st.error("Connection to server failed. "
                              "Make sure the LLM server is running and reachable at the specified URL.")
