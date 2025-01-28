@@ -22,7 +22,7 @@ def summarize_docs(docs, summary_content=None):
     map_prompt = PromptTemplate(template=st.session_state.map_prompt, input_variables=["text"])
     reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt, input_variables=["text"])
     
-    if summary_content is not None:
+    if summary_content is not None and summary_content != "":
         map_prompt = PromptTemplate(template=st.session_state.map_prompt_limited, input_variables=["text", "summary_content"])
         reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt_limited, input_variables=["text", "summary_content"])
     sum_chain = load_summarize_chain(
