@@ -61,6 +61,16 @@ ihr Wissen zu testen und zu vertiefen.
                     
 {text}"""
 
+generate_query_limited = """Generiere {num_questions} Quizfrage(n) aus dem folgenden Textauszug einer Vorlesung.
+Die Fragen sollten auf den Hauptthemen und wichtigen Details basieren und Studenten helfen,
+ihr Wissen zu testen und zu vertiefen. Achte besonders darauf, nur Fragen zu generieren, die zu dieser Prompt passen:
+
+{summary_content}
+
+Folgender Textauszug:
+                    
+{text}"""
+
 system_prompt = """You are an assistant tasked with generating quiz questions. You can only respond in the language
 used in the input text, without clauses or unnecessary information.
 

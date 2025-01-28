@@ -17,6 +17,8 @@ if 'reduce_prompt_limited' not in st.session_state:
     st.session_state.reduce_prompt_limited = const.reduce_prompt_template_limited
 if 'generate_query' not in st.session_state:
     st.session_state.generate_query = const.generate_query
+if 'generate_query_limited' not in st.session_state:
+    st.session_state.generate_query_limited = const.generate_query_limited
 if 'file_generated' not in st.session_state:
     st.session_state.file_generated = False
 if 'url_generated' not in st.session_state:
