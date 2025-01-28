@@ -1,5 +1,8 @@
 import logging
+import json
+import base64
 import streamlit as st
+import streamlit.components.v1 as components
 from langchain_core.exceptions import OutputParserException
 from openai import APIConnectionError, AuthenticationError
 
@@ -28,38 +31,101 @@ def question_generator(text, generated_property):
                                                                              "to generate from the text.")
         with st.expander("Advanced options"):
             summary_content = st.text_input("Summary Content", placeholder="Enter a prompt to limit what the model focuses on.")
+            repeat_generation = st.checkbox("Repeat generation",
+                                            help="Automatically download generated questions and restart generation.",
+                                            key="repeat_generation_checkbox")
         if st.form_submit_button("Generate"):
             reset_state(generated_property)
-            with st.spinner("Generating questions..."):
-                docs = split_text(text_input)
-                try:
-                    # summarize if text is too long to fit in one request
-                    if len(docs) > 1 or summary_content is not None:
-                        # very slow, only use if necessary
-                        docs = summarize_docs(docs, summary_content)
-                    else:
-                        docs = docs[0]
-                    if isinstance(docs, str):
-                        st.session_state.last_summary = docs
-                    elif hasattr(docs, "page_content"):
-                        st.session_state.last_summary = docs.page_content
-                    st.session_state.quiz = generate_questions(docs, num_questions)
-                    if st.session_state.quiz is not None:
-                        st.session_state[generated_property] = True
-                except APIConnectionError:
-                    st.error("Connection to server failed. "
-                             "Make sure the LLM server is running and reachable at the specified URL.")
-                except AuthenticationError:
-                    st.error("Invalid OpenAI API key. Please check the API key and try again.")
-                except OutputParserException:
-                    st.error("Error parsing output. Please try again.")
+            extract_and_generate(text_input, summary_content, num_questions)
+            if st.session_state.quiz is not None:
+                st.session_state[generated_property] = True
+        
 
     if st.session_state[generated_property]:
-        with st.expander("Show summary"):
-            st.text_area("Summary", st.session_state.last_summary, height=300)
-            st.button("Save summary", on_click=append_summary_dialog)
-        st.write("Generated questions:")
-        list_questions(st.session_state.quiz, selected_questions)
+        if repeat_generation:
+            download_quiz(st.session_state.quiz.questions)
+            def stop_generation():
+                nonlocal repeat_generation
+                repeat_generation = False
+            st.button("Stop repeated generation", on_click=stop_generation)
+            while repeat_generation:
+                reset_state(generated_property)
+                extract_and_generate(text_input, summary_content, num_questions)
+                if st.session_state.quiz is not None:
+                    download_quiz(st.session_state.quiz.questions)
+        else:
+            with st.expander("Show summary"):
+                st.text_area("Summary", st.session_state.last_summary, height=300)
+                st.button("Save summary", on_click=append_summary_dialog)
+            st.write("Generated questions:")
+            list_questions(st.session_state.quiz, selected_questions)
 
-        st.download_button("Download selected questions", convert_to_gift(selected_questions),
+            st.download_button("Download selected questions", convert_to_gift(selected_questions),
                            "questions.gift", "text/plain")
+        
+        
+def extract_and_generate(text_input, summary_content, num_questions):
+    with st.spinner("Generating questions..."):
+        docs = split_text(text_input)
+        try:
+            # summarize if text is too long to fit in one request
+            if len(docs) > 1 or (len(docs) > 1 and summary_content is not None and summary_content != ""):
+                # very slow, only use if necessary
+                docs = summarize_docs(docs, summary_content)
+            else:
+                docs = docs[0]
+            if isinstance(docs, str):
+                st.session_state.last_summary = docs
+            elif hasattr(docs, "page_content"):
+                st.session_state.last_summary = docs.page_content
+            st.session_state.quiz = generate_questions(docs, summary_content, num_questions)
+        except APIConnectionError:
+            st.error("Connection to server failed. "
+                     "Make sure the LLM server is running and reachable at the specified URL.")
+        except AuthenticationError:
+            st.error("Invalid OpenAI API key. Please check the API key and try again.")
+        except OutputParserException:
+            st.error("Error parsing output. Please try again.")
+            
+def download_button(text_to_download, download_filename):
+    """
+    Generates a link to download the given text_to_download.
+    Params:
+    ------
+    text_to_download:  The object to be downloaded.
+    download_filename (str): filename and extension of file. e.g. mydata.csv,
+    Returns:
+    -------
+    (str): the anchor tag to download text_to_download
+    """
+    if not isinstance(text_to_download, str):
+        # Try JSON encode for everything else
+        text_to_download = json.dumps(text_to_download)
+
+    try:
+        # some strings <-> bytes conversions necessary here
+        b64 = base64.b64encode(text_to_download.encode()).decode()
+
+    except AttributeError as e:
+        b64 = base64.b64encode(text_to_download).decode()
+
+    dl_link = f"""
+    <html>
+    <head>
+    <title>Start Auto Download file</title>
+    <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+    $('<a href="data:text/plain;base64,{b64}" download="{download_filename}">')[0].click()
+    </script>
+    </head>
+    </html>
+    """
+    return dl_link
+
+
+def download_quiz(questions: list):
+    quiz = convert_to_gift(questions)
+    components.html(
+        download_button(quiz, "questions.gift"),
+        height=0,
+    )
