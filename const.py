@@ -8,8 +8,9 @@ map_prompt_template = """Im Folgenden befindet sich eine Reihe von Dokumenten:
 
 {text}
                         
-Identifiziere anhand der Liste von Dokumenten die Hauptthemen und wichtige Details.
-Achte darauf, Beispiele und Definitionen wortgetreu zu übernehmen.
+Du bist ein Lehrer und sollst anhand der Dokumenten die Hauptthemen und wichtigsten Details identifizieren.
+Gib die Inhalte der Dokumente kurzgefasst aber so genau wie möglich wieder.
+Achte darauf, Formeln, Fakten und Definitionen wortgetreu zu übernehmen. Ignoriere Beispiele und Übungsaufgaben komplett.
 
 Hilfreiche Antwort:"""
 
@@ -22,9 +23,9 @@ Identifiziere anhand der Liste von Dokumenten die Hauptthemen und wichtige Detai
 
 {summary_content}
 
-Lasse irrelevante Informationen weg; wenn es sein muss, antworte gar nichts.
-Achte darauf alle relevanten Definitionen exakt wortgetreu zu übernehmen und sei dabei dafür
-umso umfangreicher.
+Du bist ein Lehrer und sollst anhand der Dokumenten die Hauptthemen und wichtigsten Details identifizieren.
+Gib die Inhalte der Dokumente kurzgefasst aber so genau wie möglich wieder.
+Achte darauf, Formeln, Fakten und Definitionen wortgetreu zu übernehmen. Ignoriere Beispiele und Übungsaufgaben komplett.
 
 Hilfreiche Antwort:"""
 
@@ -33,9 +34,10 @@ reduce_prompt_template = """Im Folgenden befindet sich eine Reihe von Zusammenfa
 
 {text}
 
-Nutze die Zusammenfassungen, um sie zu einer endgültigen, 
-alles umfassenden Zusammenfassung zu kombinieren. 
-Achte darauf, Beispiele und Definitionen exakt wortgetreu zu übernehmen.
+Du bist ein Lehrer und sollst mithilfe der Zusammenfassungen eine endgültige, alles umfassende Zusammenfassung erstellen.
+Gib die Inhalte der Zusammenfassungen kurzgefasst aber so genau wie möglich wieder.
+Achte darauf, Formeln, Fakten und Definitionen wortgetreu zu übernehmen. Ignoriere Beispiele und Übungsaufgaben komplett.
+
 
 Hilfreiche Antwort:"""
 
@@ -47,11 +49,9 @@ Diese wurden anhand folgender Prompt zusammengefasst:
 
 {summary_content}
 
-Prüfe nochmal, ob alle Informationen zu dieser Prompt passen.
-Nutze die Zusammenfassungen, um sie zu einer endgültigen,
-alles umfassenden Zusammenfassung zu kombinieren.
-Lasse irrelevante Informationen weg; wenn es sein muss, antworte gar nichts.
-Achte darauf alle relevanten Definitionen exakt wortgetreu zu übernehmen.
+Du bist ein Lehrer und sollst mithilfe der Zusammenfassungen eine endgültige, alles umfassende Zusammenfassung erstellen.
+Gib die Inhalte der Zusammenfassungen kurzgefasst aber so genau wie möglich wieder.
+Achte darauf, Formeln, Fakten und Definitionen wortgetreu zu übernehmen. Ignoriere Beispiele und Übungsaufgaben komplett.
 
 Hilfreiche Antwort:"""
 
