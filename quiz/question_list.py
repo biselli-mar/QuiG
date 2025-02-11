@@ -51,7 +51,7 @@ def show_multiple_choice_question(q, i):
         q.correct_answer = ord(st.selectbox("Correct answer",
                                             options=[chr(65 + j) for j in range(len(q.answers))],
                                             index=0,
-                                            key=f"correct_{i}")) - 65
+                                            key=f"correct_default0_{i}")) - 65
 
 
 def show_true_false_question(q, i):
@@ -77,6 +77,6 @@ def list_answer_options(q, i):
                                          value=answer,
                                          key=f"answer_{i}_{j}",
                                          label_visibility="collapsed")
-    if st.button("Add answer", key=f"add_answer_{q.question}"):
+    if st.button("Add answer", key=f"add_answer_{q.question}_{i}"):
         q.answers.append("")
         st.rerun()

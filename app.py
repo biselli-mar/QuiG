@@ -11,10 +11,18 @@ if 'map_prompt' not in st.session_state:
     st.session_state.map_prompt = const.map_prompt_template
 if 'reduce_prompt' not in st.session_state:
     st.session_state.reduce_prompt = const.reduce_prompt_template
+if 'map_prompt_limited' not in st.session_state:
+    st.session_state.map_prompt_limited = const.map_prompt_template_limited
+if 'reduce_prompt_limited' not in st.session_state:
+    st.session_state.reduce_prompt_limited = const.reduce_prompt_template_limited
 if 'generate_query' not in st.session_state:
     st.session_state.generate_query = const.generate_query
-if 'generated' not in st.session_state:
-    st.session_state.generated = False
+if 'generate_query_limited' not in st.session_state:
+    st.session_state.generate_query_limited = const.generate_query_limited
+if 'file_generated' not in st.session_state:
+    st.session_state.file_generated = False
+if 'url_generated' not in st.session_state:
+    st.session_state.url_generated = False
 if 'quiz' not in st.session_state:
     st.session_state.quiz = None
 if 'extracted_text' not in st.session_state:
@@ -25,6 +33,8 @@ if 'scraper_key' not in st.session_state:
     st.session_state.scraper_key = None
 if 'scraper_extracted_text' not in st.session_state:
     st.session_state.scraper_extracted_text = None
+if 'last_summary' not in st.session_state:
+    st.session_state.last_summary = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -34,7 +44,7 @@ logging.basicConfig(
 
 main_page = st.Page("st_pages/main.py", title="Main Page", icon="🏠")
 prompts_page = st.Page("st_pages/config_prompts.py", title="Prompts", icon="")
-generate_quiz_page = st.Page("st_pages/generate.py", title="Generate from File", icon="📝")
+generate_quiz_page = st.Page("st_pages/generate_from_file.py", title="Generate from File", icon="📝")
 generate_from_url_page = st.Page("st_pages/generate_from_url.py", title="Generate from URL", icon="🔗")
 llm_page = st.Page("st_pages/config_llm.py", title="LLM", icon="")
 

@@ -8,7 +8,7 @@ from const import MAX_TOKENS, CHUNK_SIZE, CHUNK_OVERLAP
 from generation.llm import llm
 
 
-def summarize_docs(docs):
+def summarize_docs(docs, summary_content=None):
     """
     Summarize the list of document chunks using a map-reduce chain.
 
@@ -21,6 +21,10 @@ def summarize_docs(docs):
 
     map_prompt = PromptTemplate(template=st.session_state.map_prompt, input_variables=["text"])
     reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt, input_variables=["text"])
+    
+    if summary_content is not None and summary_content != "":
+        map_prompt = PromptTemplate(template=st.session_state.map_prompt_limited, input_variables=["text", "summary_content"])
+        reduce_prompt = PromptTemplate(template=st.session_state.reduce_prompt_limited, input_variables=["text", "summary_content"])
     sum_chain = load_summarize_chain(
         llm,
         chain_type="map_reduce",
@@ -30,7 +34,7 @@ def summarize_docs(docs):
     )
 
     logging.info("Invoking map-reduce chain...")
-    summary = sum_chain.invoke(docs)
+    summary = sum_chain.invoke({"input_documents":docs,"summary_content":summary_content})
     logging.info("Map-reduce chain finished.")
 
     logging.info("Summary: %s", summary["output_text"])

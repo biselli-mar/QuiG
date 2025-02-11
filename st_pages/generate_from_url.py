@@ -15,12 +15,12 @@ selected_questions = []
 def wipe_scraper_settings():
     st.session_state.scraper_url = None
     st.session_state.scraper_key = None
-    st.session_state.generated = False
+    st.session_state.url_generated = False
     st.session_state.quiz = None
 
 
 if st.session_state.scraper_key is None:
-    with st.form("config"):
+    with st.form("scraper-config"):
         scraper_url_input = st.text_input("Scraper URL", placeholder="https://api.diffbot.com/v3/article",
                                     help="URL of the scraper server. Default is the Diffbot API if left blank.")
         key_input = st.text_input("API Key", type="password",
@@ -63,6 +63,4 @@ else:
             st.session_state.scraper_extracted_text = response.json()["objects"][0]["text"]
     
     if st.session_state.scraper_extracted_text is not None:
-        text_input = st.text_area("Text", st.session_state.scraper_extracted_text, height=300)
-
-        question_generator(text_input)
+        question_generator(st.session_state.scraper_extracted_text, "url_generated")
