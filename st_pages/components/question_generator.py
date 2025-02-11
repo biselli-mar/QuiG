@@ -36,23 +36,34 @@ def question_generator(text, generated_property):
                                             key="repeat_generation_checkbox")
         if st.form_submit_button("Generate"):
             reset_state(generated_property)
-            extract_and_generate(text_input, summary_content, num_questions)
+            try:
+                extract_and_generate(text_input, summary_content, num_questions)
+            except Exception as e:
+                logging.error("Error during generation: %s", e)
+                st.error("An error occurred during question generation")
             if st.session_state.quiz is not None:
+                st.session_state[generated_property] = True
+                if repeat_generation:
+                    download_file(convert_to_gift(st.session_state.quiz.questions), "questions.gift")
+            elif repeat_generation:
                 st.session_state[generated_property] = True
         
 
     if st.session_state[generated_property]:
         if repeat_generation:
-            download_quiz(st.session_state.quiz.questions)
             def stop_generation():
                 nonlocal repeat_generation
                 repeat_generation = False
             st.button("Stop repeated generation", on_click=stop_generation)
             while repeat_generation:
                 reset_state(generated_property)
-                extract_and_generate(text_input, summary_content, num_questions)
+                try:
+                    extract_and_generate(text_input, summary_content, num_questions)
+                except Exception as e:
+                    logging.error("Error during repeated generation: %s", e)
+                    continue
                 if st.session_state.quiz is not None:
-                    download_quiz(st.session_state.quiz.questions)
+                    download_file(convert_to_gift(st.session_state.quiz.questions), "questions.gift")
         else:
             with st.expander("Show summary"):
                 st.text_area("Summary", st.session_state.last_summary, height=300)
@@ -70,7 +81,7 @@ def extract_and_generate(text_input, summary_content, num_questions):
         try:
             # summarize if text is too long to fit in one request
             if len(docs) > 1 or (len(docs) > 1 and summary_content is not None and summary_content != ""):
-                # very slow, only use if necessary
+                # very slow, only use if
                 docs = summarize_docs(docs, summary_content)
             else:
                 docs = docs[0]
@@ -88,16 +99,6 @@ def extract_and_generate(text_input, summary_content, num_questions):
             st.error("Error parsing output. Please try again.")
             
 def download_button(text_to_download, download_filename):
-    """
-    Generates a link to download the given text_to_download.
-    Params:
-    ------
-    text_to_download:  The object to be downloaded.
-    download_filename (str): filename and extension of file. e.g. mydata.csv,
-    Returns:
-    -------
-    (str): the anchor tag to download text_to_download
-    """
     if not isinstance(text_to_download, str):
         # Try JSON encode for everything else
         text_to_download = json.dumps(text_to_download)
@@ -112,7 +113,6 @@ def download_button(text_to_download, download_filename):
     dl_link = f"""
     <html>
     <head>
-    <title>Start Auto Download file</title>
     <script src="http://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script>
     $('<a href="data:text/plain;base64,{b64}" download="{download_filename}">')[0].click()
@@ -123,9 +123,8 @@ def download_button(text_to_download, download_filename):
     return dl_link
 
 
-def download_quiz(questions: list):
-    quiz = convert_to_gift(questions)
+def download_file(text: str, filename: str):
     components.html(
-        download_button(quiz, "questions.gift"),
+        download_button(text, filename),
         height=0,
     )
